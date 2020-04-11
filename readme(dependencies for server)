@@ -4,3 +4,17 @@ djangorestframework==3.11.0
 mysql==0.0.2
 mysqlclient==1.4.6
 
+Steps:
+1) clone or download repo
+2) open COVIDSafepassage in any editor. (I used Pycharm)
+3) install dependencies
+Note: I used MySQl for Database. Please make sure you have MySql installed.
+4) run "python manage.py makemigrations"
+5) run "python manage.py migrate"
+
+Note: It is using a local Database, so create a supersuer.
+6) run "python manage.py createsuperuser"
+Then
+7) run "python manage.py runserver"
+8) go to localhost............./admin
+9) Login
