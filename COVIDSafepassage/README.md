@@ -2,11 +2,11 @@
 
 ##Dependency
 
-Python : 3.7.4
-Django : 3.0.4
-djangorestframework : 3.11.0
-mysql : 0.0.2
-mysqlclient : 1.4.6
+* Python : 3.7.4
+* Django : 3.0.4
+* djangorestframework : 3.11.0
+* mysql : 0.0.2
+* mysqlclient : 1.4.6
 
 ### LocalSetup
 * ```$ git clone  https://github.com/VICS-CORE/safepassage_server.git```
