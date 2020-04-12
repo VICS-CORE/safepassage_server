@@ -92,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': '/cloudsql/stone-ground-273913:us-central1:safe-passsage',
         'USER': 'root',
-        'PASSWORD': 'changewhile deployment',
+        'PASSWORD': 'change while deployment',
         'NAME': 'covid',
     }
 }
@@ -103,7 +103,7 @@ DATABASES = {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'covid',
 #         'USER': 'root',
-#         'PASSWORD': 'itsMyS4f3P44ssw0rd',
+#         'PASSWORD': 'change while deployment',
 #         'HOST': '127.0.0.1',
 #         'PORT': '3306',
 #     }
