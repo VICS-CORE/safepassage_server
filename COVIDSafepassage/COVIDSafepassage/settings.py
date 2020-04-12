@@ -25,7 +25,7 @@ SECRET_KEY = 'y_yo+-bj!&xak#jp9eq=ks607pw6k4nk0crd-=%elqc-c$6)oz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['stone-ground-273913.el.r.appspot.com', '34.69.21.192']
 
 
 # Application definition
@@ -76,16 +76,38 @@ WSGI_APPLICATION = 'COVIDSafepassage.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# Database
+# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+
+# Install PyMySQL as mysqlclient/MySQLdb to use Django's mysqlclient adapter
+# See https://docs.djangoproject.com/en/2.1/ref/databases/#mysql-db-api-drivers
+# for more information
+import pymysql  # noqa: 402
+pymysql.version_info = (1, 4, 6, 'final', 0)  # change mysqlclient version
+pymysql.install_as_MySQLdb()
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'covid',
+        'HOST': '/cloudsql/stone-ground-273913:us-central1:safe-passsage',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PASSWORD': 'changewhile deployment',
+        'NAME': 'covid',
     }
 }
+
+# local config
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'covid',
+#         'USER': 'root',
+#         'PASSWORD': 'itsMyS4f3P44ssw0rd',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
@@ -124,4 +146,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
+# Google App Engine: set static root for local static files
+# https://cloud.google.com/appengine/docs/flexible/python/serving-static-files
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
