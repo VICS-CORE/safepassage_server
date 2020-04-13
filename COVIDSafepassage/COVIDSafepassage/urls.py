@@ -22,7 +22,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('passsystem.urls')),
-    path('issuer/', views.issuerlist.as_view()),
-    # path('passuser/', views.passuserlist.as_view()),
-    path('passes/', views.passeslist.as_view()),
+    # path('passes/', views.passeslist.as_view()),
 ]
