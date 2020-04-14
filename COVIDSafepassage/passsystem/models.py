@@ -156,4 +156,4 @@ class Pass(models.Model):
     pass_medicalverification = models.CharField(max_length=2, choices=PASS_MEDICAL_VERIFICATION, default='N')
 
     def __str__(self):
-        return self.pass_issuedto
+        return str(self.pass_issuedto)
