@@ -8,6 +8,7 @@ class userSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+
     def create(self, validated_data):
         return User.objects.create(**validated_data)
 

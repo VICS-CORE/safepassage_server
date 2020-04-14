@@ -155,5 +155,7 @@ class Pass(models.Model):
     pass_updatedby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_pass_updaedby')
     pass_medicalverification = models.CharField(max_length=2, choices=PASS_MEDICAL_VERIFICATION, default='N')
 
+
     def __str__(self):
         return str(self.pass_issuedto)
+
