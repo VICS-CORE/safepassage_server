@@ -43,7 +43,7 @@ class Identity(models.Model):
     identity_updatedby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_identity_updatedby')
 
     def __str__(self):
-        return self.identity_id
+        return str(self.identity_id)
 
 
 class Address(models.Model):
@@ -98,7 +98,7 @@ class Roles(models.Model):
     roles_updatedby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_updatedby')
 
     def __str__(self):
-        return self.roles_rolename
+        return str(self.roles_rolename)
 
 
 class Vehicle(models.Model):
