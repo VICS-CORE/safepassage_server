@@ -6,6 +6,8 @@ Following things need to be taken care of when setting up the host machine:
 4. Apache should be configured to run a wsgi application
 
 ```
+Alias /static/ /home/mayankbhagya/safepassage_server/COVIDSafepassage/static/
+
 WSGIDaemonProcess safepassage.vics python-path=/home/mayankbhagya/safepassage_server/COVIDSafepassage/
 WSGIProcessGroup safepassage.vics
 
