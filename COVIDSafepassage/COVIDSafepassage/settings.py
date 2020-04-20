@@ -90,10 +90,11 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '/cloudsql/stone-ground-273913:us-central1:safe-passsage',
+        'HOST': os.environ.get("DBHOST", "localhost"),
         'USER': 'root',
-        'PASSWORD': 'change while deployment',
+        'PASSWORD': os.environ.get("DBPASS", ""),
         'NAME': 'covid',
+        'PORT': 3306
     }
 }
 
