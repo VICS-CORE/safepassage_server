@@ -2,6 +2,73 @@ from django.db import models
 from django.utils import timezone
 # Create your models here.
 
+from treebeard.al_tree import AL_Node
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+
+from django.contrib.auth.models import AbstractUser
+
+
+class Roles(models.Model):
+    ROLE_CHOICES = [
+        (0, 'Citizen'),
+        (1, 'Admin'),
+        (2, 'Issuer'),
+        (3, 'Scanner'),
+    ]
+    #roles_orid = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name='organisation_roles_ordid')
+    #roles_userid = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_userid')
+    roles_rolename = models.IntegerField(choices=ROLE_CHOICES, primary_key=True)
+    roles_roledescription = models.CharField(max_length=10000)
+    roles_passread = models.BooleanField(default=True)
+    roles_passwrite = models.BooleanField(default=False)
+    roles_teamread = models.BooleanField(default=False)
+    roles_teamwrite = models.BooleanField(default=False)
+    roles_createdon = models.DateTimeField(default=timezone.now)
+    roles_updatedon = models.DateTimeField(default=timezone.now)
+    #roles_isvalid = models.BooleanField(default=False)
+    #roles_createdby_id = models.IntegerField(blank=True, null=True)
+    #roles_updatedby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_updatedby')
+
+    def __str__(self):
+        return str(self.roles_rolename)
+
+
+class Organisation(models.Model):
+
+    organisation_id = models.AutoField(primary_key=True)
+    organisation_primaryuser = models.CharField(max_length=500)
+    organisation_name = models.CharField(max_length=1000)
+    organisation_address = models.IntegerField()
+    organisation_phonenumber = models.CharField(max_length=10, unique=True)
+    organisation_altphonenumber = models.CharField(max_length=10, blank=True)
+    organisation_updatedon = models.DateTimeField(default=timezone.now)
+    organisation_createdon = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.organisation_name
+
+
+class Team(AL_Node, Group):
+
+    parent = models.ForeignKey('self',
+                               related_name='children_set',
+                               null=True,
+                               db_index=True, on_delete=models.CASCADE, blank=True)
+    team_id = models.AutoField(primary_key=True)
+    node_order_by = ['team_id']
+    team_organisationid = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name='team_organisationid')
+    team_role = models.ForeignKey(Roles, on_delete=models.CASCADE, related_name='team_role')
+    team_createdon = models.DateTimeField(default=timezone.now)
+    team_updatedon = models.DateTimeField(default=timezone.now)
+
+    # team_createdby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_vehicle_createdby')
+    team_name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.team_name
+
+
 
 class User(models.Model):
     GENDER_CHOICES = [
@@ -21,6 +88,7 @@ class User(models.Model):
     user_altphonenumber = models.CharField(max_length=10, blank=True)
     user_addressid = models.IntegerField()
     user_identity = models.IntegerField()
+    user_teamid = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='user_teamid', null=True, blank=True)
 
     def __str__(self):
         return self.user_firstname
@@ -63,42 +131,6 @@ class Address(models.Model):
     def __str__(self):
         return self.address_name
 
-
-class Organisation(models.Model):
-
-    organisation_id = models.AutoField(primary_key=True)
-    organisation_primaryuser = models.CharField(max_length=500)
-    organisation_name = models.CharField(max_length=1000)
-    organisation_address = models.IntegerField()
-    organisation_phonenumber = models.CharField(max_length=10, unique=True)
-    organisation_altphonenumber = models.CharField(max_length=10, blank=True)
-    organisation_updatedon = models.DateTimeField(default=timezone.now)
-    organisation_createdon = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.organisation_name
-
-
-class Roles(models.Model):
-
-    ROLE_CHOICES = [
-        (0, 'Citizen'),
-        (1, 'Admin'),
-        (2, 'Issuer'),
-        (3, 'Scanner'),
-    ]
-    roles_orid = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name='organisation_roles_ordid')
-    roles_userid = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_userid')
-    roles_rolename = models.IntegerField(choices=ROLE_CHOICES, primary_key=True)
-    roles_roledescription = models.CharField(max_length=10000)
-    roles_createdon = models.DateTimeField(default=timezone.now)
-    roles_updatedon = models.DateTimeField(default=timezone.now)
-    roles_isvalid = models.BooleanField(default=False)
-    roles_createdby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_createdby')
-    roles_updatedby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_roles_updatedby')
-
-    def __str__(self):
-        return str(self.roles_rolename)
 
 
 class Vehicle(models.Model):
@@ -158,4 +190,22 @@ class Pass(models.Model):
 
     def __str__(self):
         return str(self.pass_issuedto)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

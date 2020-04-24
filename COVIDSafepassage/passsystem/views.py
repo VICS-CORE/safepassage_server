@@ -5,11 +5,18 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity
-from .serializers import userSerializer, identitySerializer, rolesSerializer, organisationSerializer, addressSerializer, passSerializer,vehicleSerializer
+from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity, Team
+from .serializers import userSerializer, identitySerializer, rolesSerializer, organisationSerializer, addressSerializer,\
+    passSerializer,vehicleSerializer, teamSerializer
 
 from django.contrib import admin
+from django.contrib.auth.models import Group, Permission
+from rest_framework import permissions
+from django.contrib.contenttypes.models import ContentType
 
+
+
+from django.contrib.auth.models import Permission
 
 # Create your views here.
 
@@ -52,7 +59,10 @@ class userapiview(APIView):
             else:
                 return Response({"access error"})
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def post(self, request):
+
         user2 = request.data.get('user')
         serializer = userSerializer(data=user2)
         if serializer.is_valid(raise_exception=True):
@@ -72,6 +82,8 @@ class identityapiview(APIView):
 
         serialzer = identitySerializer(identity1, many=True)
         return Response({"identity": serialzer.data})
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request):
         identity2 = request.data.get('identity')
@@ -94,6 +106,8 @@ class addressapiview(APIView):
         serialzer = addressSerializer(address1, many=True)
         return Response({"address": serialzer.data})
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def post(self, request):
         address2 = request.data.get('address')
         serializer = addressSerializer(data=address2)
@@ -102,6 +116,7 @@ class addressapiview(APIView):
             return Response({"success": "saved to address, address_addressid is "
                                         "'{}'".format(address_saved.address_addressid)})
         return Response({"ERROR": "unable to save address!"})
+
 
 class organisationapiview(APIView):
 
@@ -115,6 +130,8 @@ class organisationapiview(APIView):
         serialzer = organisationSerializer(organisation1, many=True)
         return Response({"organisation": serialzer.data})
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def post(self, request):
         organisation2 = request.data.get('organisation')
         serializer = organisationSerializer(data=organisation2)
@@ -124,25 +141,29 @@ class organisationapiview(APIView):
                                         "'{}'".format(organisation_saved.organisation_phonenumber)})
         return Response({"ERROR": "unable to save organisation!"})
 
+
 class rolesapiview(APIView):
 
     def get(self, request):
-        rolesuserid = request.GET['roles_userid']
-        if rolesuserid == '1':
+        rolesrolename = request.GET['roles_rolename']
+        if rolesrolename == '1':
             roles1 = Roles.objects.all()
         else:
-            roles1 = Roles.objects.filter(roles_userid=rolesuserid)
+            roles1 = Roles.objects.filter(roles_rolename=rolesrolename)
 
         serialzer = rolesSerializer(roles1, many=True)
         return Response({"roles": serialzer.data})
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request):
         roles2 = request.data.get('roles')
         serializer = rolesSerializer(data=roles2)
         if serializer.is_valid(raise_exception=True):
             roles_saved = serializer.save()
-            return Response({"success": "saved to roles, roles_userid is '{}'".format(roles_saved.roles_userid)})
+            return Response({"success": "saved to roles, roles_rolename is '{}'".format(roles_saved.roles_rolename)})
         return Response({"ERROR": "unable to save roles!"})
+
 
 class vehicleapiview(APIView):
 
@@ -156,6 +177,8 @@ class vehicleapiview(APIView):
         serialzer = vehicleSerializer(vehiclenumber1, many=True)
         return Response({"vehicle": serialzer.data})
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def post(self, request):
         vehicle2 = request.data.get('vehicle')
         serializer = vehicleSerializer(data=vehicle2)
@@ -163,6 +186,7 @@ class vehicleapiview(APIView):
             vehicle_saved = serializer.save()
             return Response({"success": "saved to vehicle, vehicle_id is '{}'".format(vehicle_saved.vehicle_id)})
         return Response({"ERROR": "unable to save vehicle!"})
+
 
 class passapiview(APIView):
 
@@ -176,6 +200,8 @@ class passapiview(APIView):
         serialzer = passSerializer(pass1, many=True)
         return Response({"pass": serialzer.data})
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def post(self, request):
         pass2 = request.data.get('pass')
         serializer = passSerializer(data=pass2)
@@ -185,7 +211,44 @@ class passapiview(APIView):
         return Response({"ERROR": "unable to save pass!"})
 
 
+class teamapiview(APIView):
 
+    def get(self, request):
+        teamid = request.GET['team_id']
+        if teamid == '1':
+            team1 = Team.objects.all()
+        else:
+            team1 = Team.objects.filter(team_id=teamid)
 
+        serialzer = teamSerializer(team1, many=True)
+        return Response({"team": serialzer.data})
 
+    permission_classes = [permissions.IsAuthenticated]
 
+    def post(self, request):
+        team2 = request.data.get('team')
+        serializer = teamSerializer(data=team2)
+        if serializer.is_valid(raise_exception=True):
+            team_saved = serializer.save()
+
+            return Response({"success": "saved to team, team_id is '{}'".format(team_saved.team_id)})
+        return Response({"ERROR": "unable to save team!"})
+
+#
+# if team_saved.team_role.roles_rolename == 1:
+#     teamname = team_saved.team_name
+#     new_group, created = Team.objects.get_or_create(name=teamname)
+#     ct = ContentType.objects.get_for_model(Team)
+#     permission = Permission.objects.create(codename='can_add_team',
+#                                            name='Can add team',
+#                                            content_type=ct)
+#     new_group.permissions.add(permission)
+#     print("permission added 1")
+# elif team_saved.team_role.roles_rolename == 2:
+#     new_group, created = Team.objects.get_or_create(name=team_saved.team_name)
+#     ct = ContentType.objects.get_for_model(Team)
+#     permission = Permission.objects.create(codename='can_add_team',
+#                                            name='Can add team',
+#                                            content_type=ct)
+#     new_group.permissions.add(permission)
+#     print("permission added 2")
