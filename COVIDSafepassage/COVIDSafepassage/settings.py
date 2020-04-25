@@ -95,7 +95,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': os.environ.get("DBHOST", "localhost"),
-        'USER': 'saichandra',
+        'USER': 'root',  #change to root before committing
         'PASSWORD': os.environ.get("DBPASS", ""),
         'NAME': 'covid',
         'PORT': 3306
