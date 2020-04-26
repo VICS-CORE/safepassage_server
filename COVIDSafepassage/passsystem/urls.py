@@ -13,5 +13,7 @@ urlpatterns = [
     path('roles/', views.rolesapiview.as_view(), name='rolesapi'),
     path('vehicle/', views.vehicleapiview.as_view(), name='vehicleapi'),
     path('pass/', views.passapiview.as_view(), name='passapi'),
+    path('sessionLogin/', views.SessionLoginApiView.as_view(), name='sessionLogin'),
+    path('sessionLogout/', views.SessionLogoutApiView.as_view(), name='sessionLogout'),
 ]
 
