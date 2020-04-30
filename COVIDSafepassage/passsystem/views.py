@@ -13,6 +13,7 @@ from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
 from .serializers import UserSerializer, IdentitySerializer, RolesSerializer, OrganisationSerializer,PassSerializer, \
     VehicleSerializer, TeamSerializer
 
+
 def home(request):
     return render(request, 'passsystem/home.html')
 

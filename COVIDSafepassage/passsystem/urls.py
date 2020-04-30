@@ -13,6 +13,8 @@ urlpatterns = [
     path('vehicle/', views.VehicleApiView.as_view(), name='vehicleapi'),
     path('pass/', views.PassApiView.as_view(), name='passapi'),
     path('team/', views.TeamApiView.as_view(), name='teamapi'),
+    path('sessionLogin/', views.SessionLoginApiView.as_view(), name='sessionLogin'),
+    path('sessionLogout/', views.SessionLogoutApiView.as_view(), name='sessionLogout'),
     path('issuerissuedpass/', views.IssuerIssuedPassApiView.as_view(), name='issuerissuedpassapi'),
 ]
 
