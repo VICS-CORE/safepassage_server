@@ -1,17 +1,54 @@
-from django.shortcuts import render
+import datetime
+import time
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import render
+from rest_framework import exceptions
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie, create_token
+from COVIDSafepassage.permission import IsAuthenticated
 from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
 from .serializers import UserSerializer, IdentitySerializer, RolesSerializer, OrganisationSerializer,PassSerializer, \
     VehicleSerializer, TeamSerializer
 
-
 def home(request):
     return render(request, 'passsystem/home.html')
+
+
+class SessionLoginApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        idToken = request.data.get('idToken')
+        if idToken is None:
+            raise exceptions.AuthenticationFailed('Invalid Authentication Token')
+
+        verified_claims = verify_id_token(idToken)
+        # Only process if the user signed in within the last 5 minutes.
+        if time.time() - verified_claims['auth_time'] < 5 * 60:
+            expires_in = datetime.timedelta(days=5)
+            expires = datetime.datetime.now() + expires_in
+            session_cookie = create_session_cookie(idToken, expires_in)
+            response = Response({'Login Success'}, status=status.HTTP_200_OK)
+            response.set_cookie('SESSION',
+                                session_cookie,
+                                expires=expires,
+                                httponly=True)
+            return response
+
+        raise exceptions.AuthenticationFailed('Recent sign in required')
+
+
+class SessionLogoutApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response = Response({'Logout Success'}, status=status.HTTP_200_OK)
+        response.set_cookie('SESSION', expires=0)
+        return response
 
 
 class UserApiView(APIView):
@@ -20,6 +57,8 @@ class UserApiView(APIView):
 #issuer = 2
 #scanner = 3
 #citizen-passes = 4
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         phonenumber, usertype = request.GET['user_phonenumber'], request.GET['usertype']
@@ -60,6 +99,7 @@ class UserApiView(APIView):
 
 
 class IdentityApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         identityid = request.GET['identity_id']
@@ -81,6 +121,7 @@ class IdentityApiView(APIView):
 
 
 class OrganisationApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         phonenumber = request.GET['organisation_phonenumber']
@@ -103,6 +144,7 @@ class OrganisationApiView(APIView):
 
 
 class RolesApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         rolesrolename = request.GET['roles_rolename']
@@ -124,6 +166,7 @@ class RolesApiView(APIView):
 
 
 class VehicleApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         vehiclenumber = request.GET['vehicle_vehiclenumber']
@@ -145,6 +188,7 @@ class VehicleApiView(APIView):
 
 
 class PassApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         passid = request.GET['pass_userphonenumber']
@@ -166,6 +210,7 @@ class PassApiView(APIView):
 
 
 class TeamApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         teamname = request.GET['team_name']
@@ -195,6 +240,7 @@ class TeamApiView(APIView):
 
 
 class IssuerIssuedPassApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         issuerid = request.GET['issuer_phone_number']
