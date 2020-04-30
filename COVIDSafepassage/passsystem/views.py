@@ -253,3 +253,4 @@ class IssuerIssuedPassApiView(APIView):
         serializer = PassSerializer(pass1, many=True)
         return Response({"pass": serializer.data})
 
+
