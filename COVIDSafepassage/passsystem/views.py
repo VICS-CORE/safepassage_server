@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie, create_token
+from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie
 from COVIDSafepassage.permission import IsAuthenticated
 from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity
 from .serializers import userSerializer, identitySerializer, rolesSerializer, organisationSerializer, addressSerializer, \
