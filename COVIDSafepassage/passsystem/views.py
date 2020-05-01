@@ -7,14 +7,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie
+from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie, create_token
 from COVIDSafepassage.permission import IsAuthenticated
-from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity
-from .serializers import userSerializer, identitySerializer, rolesSerializer, organisationSerializer, addressSerializer, \
-    passSerializer, vehicleSerializer
-
-
-# Create your views here.
+from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
+from .serializers import UserSerializer, IdentitySerializer, RolesSerializer, OrganisationSerializer,PassSerializer, \
+    VehicleSerializer, TeamSerializer
 
 
 def home(request):
@@ -55,50 +52,55 @@ class SessionLogoutApiView(APIView):
         return response
 
 
-class userapiview(APIView):
+class UserApiView(APIView):
+
 #citizen-profile = 1
 #issuer = 2
 #scanner = 3
 #citizen-passes = 4
+
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         phonenumber, usertype = request.GET['user_phonenumber'], request.GET['usertype']
         if phonenumber == '1111111111':
             if usertype == '2':
                     user1 = User.objects.all()
-                    serialzer = userSerializer(user1, many=True)
-                    return Response({"userpass": serialzer.data})
+                    serializer = UserSerializer(user1, many=True)
+                    return Response({"userpass": serializer.data})
             else:
                 return Response({"access error"})
         else:
             if usertype == '3':
                 tempuser = User.objects.get(user_phonenumber=phonenumber)
                 user1 = tempuser.user_pass_issuedto.all()
-                serialzer1 = passSerializer(user1, many=True)
+                serializer1 = PassSerializer(user1, many=True)
                 user2 = User.objects.filter(user_phonenumber=phonenumber)
-                serialzer2 = userSerializer(user2, many=True)
-                return Response({"user":serialzer2.data , "userpass": serialzer1.data})
+                serializer2 = UserSerializer(user2, many=True)
+                return Response({"user":serializer2.data , "userpass": serializer1.data})
             elif usertype == '4':
                 tempuser = User.objects.get(user_phonenumber=phonenumber)
                 user1 = tempuser.user_pass_issuedto.all()
-                serialzer = passSerializer(user1, many=True)
-                return Response({"userpass": serialzer.data})
+                serializer = PassSerializer(user1, many=True)
+                return Response({"userpass": serializer.data})
             elif usertype == '1':
                 user1 = User.objects.filter(user_phonenumber=phonenumber)
-                serialzer = userSerializer(user1, many=True)
-                return Response({"user": serialzer.data})
+                serializer = UserSerializer(user1, many=True)
+                return Response({"user": serializer.data})
             else:
                 return Response({"access error"})
 
     def post(self, request):
         user2 = request.data.get('user')
-        serializer = userSerializer(data=user2)
+        serializer = UserSerializer(data=user2)
         if serializer.is_valid(raise_exception=True):
             user_saved = serializer.save()
             return Response({"success": "saved to user, user_phonenumber is '{}'".format(user_saved.user_phonenumber)})
         return Response({"ERROR": "unable to save user!"})
 
 
-class identityapiview(APIView):
+class IdentityApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         identityid = request.GET['identity_id']
@@ -107,40 +109,20 @@ class identityapiview(APIView):
         else:
             identity1 = Identity.objects.filter(identity_id=identityid)
 
-        serialzer = identitySerializer(identity1, many=True)
-        return Response({"identity": serialzer.data})
+        serializer = IdentitySerializer(identity1, many=True)
+        return Response({"identity": serializer.data})
 
     def post(self, request):
         identity2 = request.data.get('identity')
-        serializer = identitySerializer(data=identity2)
+        serializer = IdentitySerializer(data=identity2)
         if serializer.is_valid(raise_exception=True):
             identity_saved = serializer.save()
             return Response({"success": "saved to identity, identity_id is '{}'".format(identity_saved.identity_id)})
         return Response({"ERROR": "unable to save identity!"})
 
 
-class addressapiview(APIView):
-
-    def get(self, request):
-        addressid = request.GET['address_id']
-        if addressid == '1':
-            address1 = Address.objects.all()
-        else:
-            address1 = Address.objects.filter(address_id=addressid)
-
-        serialzer = addressSerializer(address1, many=True)
-        return Response({"address": serialzer.data})
-
-    def post(self, request):
-        address2 = request.data.get('address')
-        serializer = addressSerializer(data=address2)
-        if serializer.is_valid(raise_exception=True):
-            address_saved = serializer.save()
-            return Response({"success": "saved to address, address_addressid is "
-                                        "'{}'".format(address_saved.address_addressid)})
-        return Response({"ERROR": "unable to save address!"})
-
-class organisationapiview(APIView):
+class OrganisationApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         phonenumber = request.GET['organisation_phonenumber']
@@ -149,39 +131,43 @@ class organisationapiview(APIView):
         else:
             organisation1 = Organisation.objects.filter(organisation_phonenumber=phonenumber)
 
-        serialzer = organisationSerializer(organisation1, many=True)
-        return Response({"organisation": serialzer.data})
+        serializer = OrganisationSerializer(organisation1, many=True)
+        return Response({"organisation": serializer.data})
 
     def post(self, request):
         organisation2 = request.data.get('organisation')
-        serializer = organisationSerializer(data=organisation2)
+        serializer = OrganisationSerializer(data=organisation2)
         if serializer.is_valid(raise_exception=True):
             organisation_saved = serializer.save()
             return Response({"success": "saved to organisation, organisation_phonenumber is "
                                         "'{}'".format(organisation_saved.organisation_phonenumber)})
         return Response({"ERROR": "unable to save organisation!"})
 
-class rolesapiview(APIView):
+
+class RolesApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        rolesuserid = request.GET['roles_userid']
-        if rolesuserid == '1':
+        rolesrolename = request.GET['roles_rolename']
+        if rolesrolename == '1':
             roles1 = Roles.objects.all()
         else:
-            roles1 = Roles.objects.filter(roles_userid=rolesuserid)
+            roles1 = Roles.objects.filter(roles_rolename=rolesrolename)
 
-        serialzer = rolesSerializer(roles1, many=True)
-        return Response({"roles": serialzer.data})
+        serializer = RolesSerializer(roles1, many=True)
+        return Response({"roles": serializer.data})
 
     def post(self, request):
         roles2 = request.data.get('roles')
-        serializer = rolesSerializer(data=roles2)
+        serializer = RolesSerializer(data=roles2)
         if serializer.is_valid(raise_exception=True):
             roles_saved = serializer.save()
-            return Response({"success": "saved to roles, roles_userid is '{}'".format(roles_saved.roles_userid)})
+            return Response({"success": "saved to roles, roles_rolename is '{}'".format(roles_saved.roles_rolename)})
         return Response({"ERROR": "unable to save roles!"})
 
-class vehicleapiview(APIView):
+
+class VehicleApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         vehiclenumber = request.GET['vehicle_vehiclenumber']
@@ -190,39 +176,81 @@ class vehicleapiview(APIView):
         else:
             vehiclenumber1 = Vehicle.objects.filter(vehicle_vehiclenumber=vehiclenumber)
 
-        serialzer = vehicleSerializer(vehiclenumber1, many=True)
-        return Response({"vehicle": serialzer.data})
+        serializer = VehicleSerializer(vehiclenumber1, many=True)
+        return Response({"vehicle": serializer.data})
 
     def post(self, request):
         vehicle2 = request.data.get('vehicle')
-        serializer = vehicleSerializer(data=vehicle2)
+        serializer = VehicleSerializer(data=vehicle2)
         if serializer.is_valid(raise_exception=True):
             vehicle_saved = serializer.save()
             return Response({"success": "saved to vehicle, vehicle_id is '{}'".format(vehicle_saved.vehicle_id)})
         return Response({"ERROR": "unable to save vehicle!"})
 
-class passapiview(APIView):
+
+class PassApiView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        passid = request.GET['pass_id']
-        if passid == '1':
+        passid = request.GET['pass_userphonenumber']
+        if passid == '1111111111':
             pass1 = Pass.objects.all()
         else:
-            pass1 = Pass.objects.filter(pass_issuedto=passid)
+            pass1 = Pass.objects.filter(pass_issuedto__user_phonenumber=passid)
 
-        serialzer = passSerializer(pass1, many=True)
-        return Response({"pass": serialzer.data})
+        serializer = PassSerializer(pass1, many=True)
+        return Response({"pass": serializer.data})
 
     def post(self, request):
         pass2 = request.data.get('pass')
-        serializer = passSerializer(data=pass2)
+        serializer = PassSerializer(data=pass2)
         if serializer.is_valid(raise_exception=True):
             pass_saved = serializer.save()
             return Response({"success": "saved to pass, pass_user_id is '{}'".format(pass_saved.pass_id)})
         return Response({"ERROR": "unable to save pass!"})
 
 
+class TeamApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        teamname = request.GET['team_name']
+        if teamname == 'India-Admin':
+            team1 = Team.objects.all()
+            user1 = User.objects.all()
+        else:
+            team1 = Team.objects.filter(team_name=teamname)
+            user1 = User.objects.filter(user_teamid__team_name=teamname)
+
+        serializer1 = TeamSerializer(team1, many=True)
+        serializer2 = UserSerializer(user1, many=True)
+        return Response({"team": serializer1.data, "usersinteam": serializer2.data})
+
+    def post(self, request):
+        team1 = request.data.get('team')
+        serializer = TeamSerializer(data=team1)
+        if serializer.is_valid(raise_exception=True):
+            team_saved = serializer.save()
+            return Response({"success": "saved to team, team_id is '{}'".format(team_saved.team_id)})
+        return Response({"ERROR": "unable to save team!"})
 
 
+#======================================================================================================================#
+
+# After Basic API for models
+
+
+class IssuerIssuedPassApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        issuerid = request.GET['issuer_phone_number']
+        if issuerid == '1111111111':
+            pass1 = Pass.objects.all()
+        else:
+            pass1 = Pass.objects.filter(pass_issuedby__user_phonenumber=issuerid)
+
+        serializer = PassSerializer(pass1, many=True)
+        return Response({"pass": serializer.data})
 
 

@@ -1,19 +1,18 @@
 from rest_framework import serializers
-from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity
+from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
 
 
-class userSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
         fields = '__all__'
 
-
     def create(self, validated_data):
         return User.objects.create(**validated_data)
 
 
-class identitySerializer(serializers.ModelSerializer):
+class IdentitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Identity
@@ -22,17 +21,8 @@ class identitySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Identity.objects.create(**validated_data)
 
-class addressSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Address
-        fields = '__all__'
-
-    def create(self, validated_data):
-        return Address.objects.create(**validated_data)
-
-
-class organisationSerializer(serializers.ModelSerializer):
+class OrganisationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organisation
@@ -42,7 +32,7 @@ class organisationSerializer(serializers.ModelSerializer):
         return Organisation.objects.create(**validated_data)
 
 
-class rolesSerializer(serializers.ModelSerializer):
+class RolesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Roles
@@ -52,7 +42,7 @@ class rolesSerializer(serializers.ModelSerializer):
         return Roles.objects.create(**validated_data)
 
 
-class vehicleSerializer(serializers.ModelSerializer):
+class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = '__all__'
@@ -61,7 +51,7 @@ class vehicleSerializer(serializers.ModelSerializer):
         return Vehicle.objects.create(**validated_data)
 
 
-class passSerializer(serializers.ModelSerializer):
+class PassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pass
@@ -71,6 +61,14 @@ class passSerializer(serializers.ModelSerializer):
         return Pass.objects.create(**validated_data)
 
 
+class TeamSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Team.objects.create(**validated_data)
 
 
 
