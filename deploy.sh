@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 echo "==== Starting deploy.sh...", $(date)
 pushd ~/safepassage_server/COVIDSafepassage
 git stash
