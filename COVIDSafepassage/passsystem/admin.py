@@ -1,33 +1,25 @@
 from django.contrib import admin
-from .models import Pass, User, Organisation, Roles, Address, Vehicle, Identity
+from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
 
-# Register your models here.
 
-
-class adminuserview(admin.ModelAdmin):
+class AdminUserView(admin.ModelAdmin):
 
     model = User
     readonly_fields = ('user_id',)
-    list_display = ['user_phonenumber', 'user_firstname', 'user_lastname', 'user_gender', 'user_createdon',
-                    'user_addressid', 'user_identity', 'user_image']
+    list_display = ['user_phonenumber', 'user_firstname', 'user_lastname', 'user_gender', 'user_teamid',
+                    'user_createdon', 'user_image', 'user_address_zipcode']
 
 
-class adminidentityview(admin.ModelAdmin):
+class AdminIdentityView(admin.ModelAdmin):
 
     model = Identity
     readonly_fields = ('identity_id',)
     list_display = ['identity_id', 'identity_idtype', 'identity_idnumber', 'identity_createdon','identity_createdby']
 
 
-class adminaddressview(admin.ModelAdmin):
-
-    model = Address
-    readonly_fields = ('address_id',)
-    list_display = ['address_id', 'address_latitude', 'address_longitude', 'address_zipcode',
-                    'address_city', 'address_state']
-
-
-class adminorganisationview(admin.ModelAdmin):
+class AdminOrganisationView(admin.ModelAdmin):
 
     model = Organisation
     readonly_fields = ('organisation_id',)
@@ -35,32 +27,44 @@ class adminorganisationview(admin.ModelAdmin):
                     'organisation_createdon']
 
 
-class adminrolesview(admin.ModelAdmin):
+class AdminRolesView(admin.ModelAdmin):
 
     model = Roles
-    list_display = ['roles_userid', 'roles_rolename', 'roles_roledescription', 'roles_createdon','roles_createdby',
-                    'roles_isvalid']
+    # readonly_fields = ('roles_rolename',)
+    list_display = ['roles_rolename', 'roles_roledescription', 'roles_passread', 'roles_passwrite', 'roles_teamread',
+                    'roles_teamwrite', 'roles_createdon']
 
 
-class adminvehicleview(admin.ModelAdmin):
+class AdminVehicleView(admin.ModelAdmin):
 
     model = Vehicle
     readonly_fields = ('vehicle_id',)
     list_display = ['vehicle_vehiclenumber', 'vehicle_id', 'vehicle_uid', 'vehicle_createdon','vehicle_createdby']
 
 
-class adminpassview(admin.ModelAdmin):
+class AdminPassView(admin.ModelAdmin):
 
     model = Pass
     readonly_fields = ('pass_id',)
-    list_display = ['pass_issuedto', 'pass_id', 'pass_issuedby', 'pass_passtype','pass_passreason', 'pass_radius',
+    list_display = ['pass_issuedto', 'pass_id', 'pass_issuedby', 'pass_passtype', 'pass_passreason', 'pass_radius',
                     'pass_createdon', 'pass_expirydate', 'pass_validitystate', 'pass_medicalverification']
 
 
-admin.site.register(User, adminuserview)
-admin.site.register(Identity, adminidentityview)
-admin.site.register(Address, adminaddressview)
-admin.site.register(Organisation, adminorganisationview)
-admin.site.register(Roles, adminrolesview)
-admin.site.register(Vehicle, adminvehicleview)
-admin.site.register(Pass, adminpassview)
+class AdminTeamView(TreeAdmin, admin.ModelAdmin):
+    readonly_fields = ('team_id',)
+    fields = ['team_id', 'team_name', 'team_role', 'team_organisationid', 'team_createdon', '_position', '_ref_node_id']
+    form = movenodeform_factory(Team)
+
+    # def save_model(self, request, obj, form, change):
+    #     obj.from_admin_site = True  # here we setting instance attribute which we check in `post_save`
+    #     print("in admin")
+    #     super().save_model(request, obj, form, change)
+
+
+admin.site.register(Team, AdminTeamView)
+admin.site.register(User, AdminUserView)
+admin.site.register(Identity, AdminIdentityView)
+admin.site.register(Organisation, AdminOrganisationView)
+admin.site.register(Roles, AdminRolesView)
+admin.site.register(Vehicle, AdminVehicleView)
+admin.site.register(Pass, AdminPassView)
