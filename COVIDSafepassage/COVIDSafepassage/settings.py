@@ -72,11 +72,12 @@ TEMPLATES = [
     },
 ]
 print(default_storage.__class__)
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(BASE_DIR+'/COVIDSafepassage/stone-ground-273913-51cf49022f41.json')
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(BASE_DIR+'/COVIDSafepassage/stone-ground-273913-5f0601e3f36a.json')
 WSGI_APPLICATION = 'COVIDSafepassage.wsgi.application'
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'safepassage_user_images'
+#COVIDSafepassage/COVIDSafepassage/stone-ground-273913-5f0601e3f36a.json
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
