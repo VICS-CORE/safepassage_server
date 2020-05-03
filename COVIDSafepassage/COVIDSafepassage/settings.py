@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'COVIDSafepassage',
     'passsystem',
     'rest_framework',
+    'treebeard',
 ]
 
 MIDDLEWARE = [
