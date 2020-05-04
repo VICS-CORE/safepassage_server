@@ -7,7 +7,7 @@ from rest_framework import exceptions
 
 
 # JSON formatted key file you get directly from firebase
-FIREBASE_ACCOUNT_KEY_FILE = os.path.abspath(os.getcwd()) + '/static/firebase/service-account.json'
+FIREBASE_ACCOUNT_KEY_FILE = os.path.dirname(os.path.abspath(__file__)) + '/../static/firebase/service-account.json'
 
 credentials = credentials.Certificate(FIREBASE_ACCOUNT_KEY_FILE)
 firebase = firebase_admin.initialize_app(credentials)
