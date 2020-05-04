@@ -1,3 +1,4 @@
+import os
 import firebase_admin
 from firebase_admin import auth, credentials
 from firebase_admin.auth import InvalidIdTokenError, InvalidSessionCookieError
@@ -6,7 +7,7 @@ from rest_framework import exceptions
 
 
 # JSON formatted key file you get directly from firebase
-FIREBASE_ACCOUNT_KEY_FILE = 'static/firebase/service-account.json'
+FIREBASE_ACCOUNT_KEY_FILE = os.path.abspath(os.getcwd()) + '/static/firebase/service-account.json'
 
 credentials = credentials.Certificate(FIREBASE_ACCOUNT_KEY_FILE)
 firebase = firebase_admin.initialize_app(credentials)
