@@ -2,7 +2,7 @@ from django.test import TestCase
 
 import factory
 import factory.django
-from .models import Pass, User, Organisation, Roles, Vehicle, Identity
+from passsystem.models import Pass, User, Organisation, Roles, Vehicle, Identity
 
 
 class UserFactory(factory.django.DjangoModelFactory):
