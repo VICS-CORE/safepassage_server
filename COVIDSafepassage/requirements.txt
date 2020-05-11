@@ -31,7 +31,3 @@ sqlparse==0.3.1
 urllib3==1.25.8
 django-storages[google]
 firebase-admin==4.1.0
-treebeard==0.0.81
-
-
-
