@@ -73,7 +73,7 @@ class User(models.Model):
     user_lastname = models.CharField(max_length=100, blank=True)
     user_middlename = models.CharField(max_length=100, blank=True)
     user_gender = models.CharField(max_length=2, choices=GENDER_CHOICES)
-    user_image = models.ImageField(upload_to='', default='', blank=True)
+    user_image = models.ImageField(upload_to='photos', default='', blank=True)
     user_phonenumber = models.CharField(max_length=10, unique=True)
     user_altphonenumber = models.CharField(max_length=10, blank=True)
     user_address_name = models.CharField(max_length=1000, default="DoorOrHouseNumber")
@@ -169,6 +169,7 @@ class Pass(models.Model):
 
     def __str__(self):
         return str(self.pass_issuedto)
+
 
 
 
