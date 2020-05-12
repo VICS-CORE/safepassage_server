@@ -7,12 +7,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie
+from COVIDSafepassage.auth_helpers import verify_id_token, create_session_cookie, create_token
 from COVIDSafepassage.permission import IsAuthenticated
 from .models import Pass, User, Organisation, Roles, Vehicle, Identity, Team
 from .serializers import UserSerializer, IdentitySerializer, RolesSerializer, OrganisationSerializer,PassSerializer, \
     VehicleSerializer, TeamSerializer
-
 
 def home(request):
     return render(request, 'passsystem/home.html')
@@ -62,33 +61,45 @@ class UserApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        phonenumber, usertype = request.GET['user_phonenumber'], request.GET['usertype']
-        if phonenumber == '1111111111':
-            if usertype == '2':
-                    user1 = User.objects.all()
-                    serializer = UserSerializer(user1, many=True)
+        try:
+            phonenumber, usertype = request.GET['user_phonenumber'], request.GET['usertype']
+            if phonenumber == '1111111111':
+                if usertype == '2':
+                        user1 = User.objects.all()
+                        serializer = UserSerializer(user1, many=True)
+                        return Response({"userpass": serializer.data})
+                else:
+                    return Response({"access error"})
+            else:
+                if usertype == '3':
+                    try:
+                        tempuser = User.objects.get(user_phonenumber=phonenumber)
+                        user1 = tempuser.user_pass_issuedto.all()
+                        serializer1 = PassSerializer(user1, many=True)
+                        user2 = User.objects.filter(user_phonenumber=phonenumber)
+                        serializer2 = UserSerializer(user2, many=True)
+                    except Exception as e:
+                        return Response({"Error": e.args[0]})
+                    return Response({"user":serializer2.data , "userpass": serializer1.data})
+                elif usertype == '4':
+                    try:
+                        tempuser = User.objects.get(user_phonenumber=phonenumber)
+                        user1 = tempuser.user_pass_issuedto.all()
+                        serializer = PassSerializer(user1, many=True)
+                    except Exception as e:
+                        return Response({"Error": e.args[0]})
                     return Response({"userpass": serializer.data})
-            else:
-                return Response({"access error"})
-        else:
-            if usertype == '3':
-                tempuser = User.objects.get(user_phonenumber=phonenumber)
-                user1 = tempuser.user_pass_issuedto.all()
-                serializer1 = PassSerializer(user1, many=True)
-                user2 = User.objects.filter(user_phonenumber=phonenumber)
-                serializer2 = UserSerializer(user2, many=True)
-                return Response({"user":serializer2.data , "userpass": serializer1.data})
-            elif usertype == '4':
-                tempuser = User.objects.get(user_phonenumber=phonenumber)
-                user1 = tempuser.user_pass_issuedto.all()
-                serializer = PassSerializer(user1, many=True)
-                return Response({"userpass": serializer.data})
-            elif usertype == '1':
-                user1 = User.objects.filter(user_phonenumber=phonenumber)
-                serializer = UserSerializer(user1, many=True)
-                return Response({"user": serializer.data})
-            else:
-                return Response({"access error"})
+                elif usertype == '1':
+                    try:
+                        user1 = User.objects.filter(user_phonenumber=phonenumber)
+                        serializer = UserSerializer(user1, many=True)
+                    except Exception as e:
+                        return Response({"Error": e.args[0]})
+                    return Response({"user": serializer.data})
+                else:
+                    return Response({"access error"})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
     def post(self, request):
         user2 = request.data.get('user')
@@ -103,14 +114,22 @@ class IdentityApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        identityid = request.GET['identity_id']
-        if identityid == '1':
-            identity1 = Identity.objects.all()
-        else:
-            identity1 = Identity.objects.filter(identity_id=identityid)
+        try:
+            identityid = request.GET['identity_id']
+            if identityid == '1':
+                identity1 = Identity.objects.all()
+            else:
+                try:
+                    identity1 = Identity.objects.filter(identity_id=identityid)
+                    if not identity1:
+                        return Response({"Error": "No Identity Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
 
-        serializer = IdentitySerializer(identity1, many=True)
-        return Response({"identity": serializer.data})
+            serializer = IdentitySerializer(identity1, many=True)
+            return Response({"identity": serializer.data})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
     def post(self, request):
         identity2 = request.data.get('identity')
@@ -125,14 +144,22 @@ class OrganisationApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        phonenumber = request.GET['organisation_phonenumber']
-        if phonenumber == '2222222222':
-            organisation1 = Organisation.objects.all()
-        else:
-            organisation1 = Organisation.objects.filter(organisation_phonenumber=phonenumber)
+        try:
+            phonenumber = request.GET['organisation_phonenumber']
+            if phonenumber == '2222222222':
+                organisation1 = Organisation.objects.all()
+            else:
+                try:
+                    organisation1 = Organisation.objects.filter(organisation_phonenumber=phonenumber)
+                    if not organisation1:
+                        return Response({"Error": "No Organisation Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
 
-        serializer = OrganisationSerializer(organisation1, many=True)
-        return Response({"organisation": serializer.data})
+            serializer = OrganisationSerializer(organisation1, many=True)
+            return Response({"organisation": serializer.data})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
     def post(self, request):
         organisation2 = request.data.get('organisation')
@@ -148,14 +175,22 @@ class RolesApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        rolesrolename = request.GET['roles_rolename']
-        if rolesrolename == '1':
-            roles1 = Roles.objects.all()
-        else:
-            roles1 = Roles.objects.filter(roles_rolename=rolesrolename)
+        try:
+            rolesrolename = request.GET['roles_rolename']
+            if rolesrolename == '1':
+                roles1 = Roles.objects.all()
+            else:
+                try:
+                    roles1 = Roles.objects.filter(roles_rolename=rolesrolename)
+                    if not roles1:
+                        return Response({"Error": "No Role Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
 
-        serializer = RolesSerializer(roles1, many=True)
-        return Response({"roles": serializer.data})
+            serializer = RolesSerializer(roles1, many=True)
+            return Response({"roles": serializer.data})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
     def post(self, request):
         roles2 = request.data.get('roles')
@@ -170,14 +205,22 @@ class VehicleApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vehiclenumber = request.GET['vehicle_vehiclenumber']
-        if vehiclenumber == 'COVIDSP111':
-            vehiclenumber1 = Vehicle.objects.all()
-        else:
-            vehiclenumber1 = Vehicle.objects.filter(vehicle_vehiclenumber=vehiclenumber)
+        try:
+            vehiclenumber = request.GET['vehicle_vehiclenumber']
+            if vehiclenumber == 'COVIDSP111':
+                vehiclenumber1 = Vehicle.objects.all()
+            else:
+                try:
+                    vehiclenumber1 = Vehicle.objects.filter(vehicle_vehiclenumber=vehiclenumber)
+                    if not vehiclenumber1:
+                        return Response({"Error": "No Vehicle Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
 
-        serializer = VehicleSerializer(vehiclenumber1, many=True)
-        return Response({"vehicle": serializer.data})
+            serializer = VehicleSerializer(vehiclenumber1, many=True)
+            return Response({"vehicle": serializer.data})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
     def post(self, request):
         vehicle2 = request.data.get('vehicle')
@@ -192,11 +235,20 @@ class PassApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        passid = request.GET['pass_userphonenumber']
-        if passid == '1111111111':
-            pass1 = Pass.objects.all()
-        else:
-            pass1 = Pass.objects.filter(pass_issuedto__user_phonenumber=passid)
+        try:
+            passid = request.GET['pass_userphonenumber']
+            if passid == '1111111111':
+                pass1 = Pass.objects.all()
+            else:
+                try:
+                    pass1 = Pass.objects.filter(pass_issuedto__user_phonenumber=passid)
+                    print(pass1)
+                    if not pass1:
+                        return Response({"Error": "No Pass Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
         serializer = PassSerializer(pass1, many=True)
         return Response({"pass": serializer.data})
@@ -214,13 +266,23 @@ class TeamApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        teamname = request.GET['team_name']
-        if teamname == 'India-Admin':
-            team1 = Team.objects.all()
-            user1 = User.objects.all()
-        else:
-            team1 = Team.objects.filter(team_name=teamname)
-            user1 = User.objects.filter(user_teamid__team_name=teamname)
+        try:
+            teamname = request.GET['team_name']
+            if teamname == 'India-Admin':
+                team1 = Team.objects.all()
+                user1 = User.objects.all()
+            else:
+                try:
+                    team1 = Team.objects.filter(team_name=teamname)
+                    if not team1:
+                        return Response({"Error": "No Team Found"})
+                    user1 = User.objects.filter(user_teamid__team_name=teamname)
+                    if not user1:
+                        return Response({"Error": "No User Found"})
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
         serializer1 = TeamSerializer(team1, many=True)
         serializer2 = UserSerializer(user1, many=True)
@@ -244,13 +306,18 @@ class IssuerIssuedPassApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        issuerid = request.GET['issuer_phone_number']
-        if issuerid == '1111111111':
-            pass1 = Pass.objects.all()
-        else:
-            pass1 = Pass.objects.filter(pass_issuedby__user_phonenumber=issuerid)
+        try:
+            issuerid = request.GET['issuer_phone_number']
+            if issuerid == '1111111111':
+                pass1 = Pass.objects.all()
+            else:
+                try:
+                    pass1 = Pass.objects.filter(pass_issuedby__user_phonenumber=issuerid)
+                except Exception as e:
+                    return Response({"Error": e.args[0]})
+        except Exception as e:
+            return Response({"Error": e.args[0]})
 
         serializer = PassSerializer(pass1, many=True)
         return Response({"pass": serializer.data})
-
 
