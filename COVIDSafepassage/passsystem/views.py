@@ -67,7 +67,7 @@ class UserApiView(APIView):
                 if usertype == '2':
                         user1 = User.objects.all()
                         serializer = UserSerializer(user1, many=True)
-                        return Response({"userpass": serializer.data})
+                        return Response({"user": serializer.data})
                 else:
                     return Response({"access error"})
             else:
@@ -90,6 +90,13 @@ class UserApiView(APIView):
                         return Response({"Error": e.args[0]})
                     return Response({"userpass": serializer.data})
                 elif usertype == '1':
+                    try:
+                        user1 = User.objects.filter(user_phonenumber=phonenumber)
+                        serializer = UserSerializer(user1, many=True)
+                    except Exception as e:
+                        return Response({"Error": e.args[0]})
+                    return Response({"user": serializer.data})
+                elif usertype == '2':
                     try:
                         user1 = User.objects.filter(user_phonenumber=phonenumber)
                         serializer = UserSerializer(user1, many=True)
@@ -320,4 +327,5 @@ class IssuerIssuedPassApiView(APIView):
 
         serializer = PassSerializer(pass1, many=True)
         return Response({"pass": serializer.data})
+
 

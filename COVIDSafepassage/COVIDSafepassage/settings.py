@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from google.oauth2 import service_account
+from django.core.files.storage import default_storage
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +27,7 @@ SECRET_KEY = 'y_yo+-bj!&xak#jp9eq=ks607pw6k4nk0crd-=%elqc-c$6)oz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['stone-ground-273913.el.r.appspot.com', '34.69.21.192']
+ALLOWED_HOSTS = ['stone-ground-273913.el.r.appspot.com', '34.69.21.192','127.0.0.1']
 
 
 # Application definition
@@ -70,10 +72,13 @@ TEMPLATES = [
         },
     },
 ]
-
+print(default_storage.__class__)
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(BASE_DIR+'/COVIDSafepassage/stone-ground-273913-5f0601e3f36a.json')
 WSGI_APPLICATION = 'COVIDSafepassage.wsgi.application'
-
-
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'safepassage_user_images'
+#COVIDSafepassage/COVIDSafepassage/stone-ground-273913-5f0601e3f36a.json
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -92,7 +97,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': os.environ.get("DBHOST", "localhost"),
-        'USER': 'root',
+        'USER': 'root',  #change to root before committing
         'PASSWORD': os.environ.get("DBPASS", ""),
         'NAME': 'covid',
         'PORT': 3306
