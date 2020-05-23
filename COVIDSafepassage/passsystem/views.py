@@ -113,7 +113,7 @@ class UserApiView(APIView):
         serializer = UserSerializer(data=user2)
         if serializer.is_valid(raise_exception=True):
             user_saved = serializer.save()
-            return Response({"success": "saved to user, user_phonenumber is '{}'".format(user_saved.user_phonenumber)})
+            return Response({"success": "saved to user, user_phonenumber is '{}' and user_id is '{}'".format(user_saved.user_phonenumber, user_saved.user_id)})
         return Response({"ERROR": "unable to save user!"})
 
 
